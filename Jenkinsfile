@@ -1,27 +1,33 @@
 pipeline {
     agent any
+
+    environment {
+        ANSIBLE_INVENTORY = 'inventory.ini'         // chemin relatif
+        ANSIBLE_PLAYBOOK = 'deploy.yml'             // chemin relatif
+    }
+
     stages {
         stage('Checkout') {
             steps {
-                // Récupère le code depuis le dépôt GitHub
-                git 'https://github.com/med23009/IRT43.git'
+                git branch: 'master', url: 'https://github.com/med23009/IRT43.git'
             }
         }
-        stage('Compile') {
+
+        stage('Install Ansible') {
             steps {
-                script {
-                    // Compile le code Java
-                    sh 'javac HelloWorld.java'
-                }
+                sh 'sudo apt-get update'
+                sh 'sudo apt-get install -y ansible'
             }
         }
-        stage('Run') {
+
+        stage('Run Ansible Playbook') {
             steps {
-                script {
-                    // Exécute le code Java compilé
-                    sh 'java HelloWorld'
-                }
+                ansiblePlaybook(
+                    playbook: "${ANSIBLE_PLAYBOOK}",
+                    inventory: "${ANSIBLE_INVENTORY}"
+                )
             }
         }
     }
 }
+
