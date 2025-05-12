@@ -1,0 +1,26 @@
+---
+- name: Deploy Java Application
+  hosts: web
+  become: yes
+  tasks:
+
+    - name: Assure that Java is installed
+      apt:
+        name: openjdk-17-jdk
+        state: present
+
+    - name: Create destination directory
+      file:
+        path: /opt/myapp
+        state: directory
+        mode: '0755'
+
+    - name: Copy the JAR file
+      copy:
+        src: /root/IRT43/helloworld/helloworld.jar
+        dest: /opt/myapp/helloworld.jar
+        mode: '0755'
+
+    - name: Run the JAR application
+      shell: "nohup java -jar /opt/myapp/helloworld.jar > /opt/myapp/app.log 2>&1 &"
+
